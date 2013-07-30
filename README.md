@@ -3,6 +3,7 @@ gowf
 golang web framework open source
 
 ===============================中文============================
+
 先更新下配置go文件:
    #!/bin/bash
    export GOROOT=$yourGoroot      #go根目录
