@@ -28,7 +28,9 @@ golang web framework open source
    [template]
    path=assets/page/ ;with '/' end;
 
+
 =======================================EN============================
+
 
 need config go:
    #!/bin/bash
@@ -36,7 +38,6 @@ need config go:
    export PATH=$PATH:$GOROOT/bin
    export GOPATH=$currentProjectPath:$thridpartyPath      #$HOME/milo/web/gowf:$GOROOT/libs；
    go "$@"
-
 
 runing command: 
  ./go run src/server.go [dev|prod|xxxx]
@@ -46,6 +47,7 @@ Abort Mode:
   eg: dev->cfg/dev.cfg, prod->cfg/prod.cfg or xxxx->cfg/xxxx.cfg
   mode dev: dynamic loading page, if you change it.
   other modes: cache page in memory, cannot change until your restart server.
+
 
 config port & template path in cfg/*.cfg，
 you can define its struct as your like, reference to src/util/config.go->struct Config:
