@@ -1,6 +1,8 @@
 package route
 
-import "net/http"
+import (
+  "net/http"
+)
 
 //
 // alias int8 -> Index, reference @route/IRoute interface(implements R Method).

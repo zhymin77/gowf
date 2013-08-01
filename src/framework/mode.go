@@ -1,8 +1,6 @@
-package util
+package framework
 
 import "os"
-
-const MODE_DEV = "dev"
 
 // Current runing mode.
 func GetMode() string {

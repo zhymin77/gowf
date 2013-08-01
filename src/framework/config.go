@@ -1,15 +1,15 @@
-package util
+package framework
 
 import (
   "code.google.com/p/gcfg"
   "fmt"
-  "sync"
 )
 
 /** config struct, reference to cfg/*.cfg files */
 type Config struct {
-  Section struct {
+  Glob struct {
     Port string
+    ServerUrl string
   }
   Template struct {
     Path string
@@ -19,10 +19,8 @@ type Config struct {
 /**
  * loading cfg, only once
  */
-var cfg Config
-var once sync.Once
 func Datacfg() *Config {
-  once.Do(LoadConfig)
+  cfgOnce.Do(LoadConfig)
   return &cfg
 }
 
