@@ -23,6 +23,7 @@ func Register(rfunc func(*map[string]func(http.ResponseWriter, *http.Request))) 
   for url, method := range regMap {
     http.HandleFunc(url, method)
   }
+  http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(staticPath))))
 }
 
 // Render template
@@ -31,7 +32,8 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, d interface{}) {
   var err error
   layoutM := loadLayout(&data)
   (*layoutM)["CONTENT"] = loadTmpl(tmpl, &data)
-  layout := template.Must(template.New("layout.tmpl").ParseFiles(templatePath + "layout/layout.tmpl"))
+  (*layoutM)["GlobServerUrl"] = GlobServerUrl
+  layout := template.Must(template.New("layout.tmpl").ParseFiles(tmplPath + "layout/layout.tmpl"))
   err = layout.Execute(w, &layoutM)
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -41,14 +43,14 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, d interface{}) {
 // load tmpl
 func loadTmpl(tmpl string, data interface{}) template.HTML {
   var b bytes.Buffer
-  template.Must(template.ParseFiles(templatePath + tmpl)).Execute(&b, &data)
+  template.Must(template.ParseFiles(tmplPath + tmpl)).Execute(&b, &data)
   return template.HTML(b.String())
 }
 
 // load layout, escape layout/layout.tmpl
-func loadLayout(data interface{}) *map[string]template.HTML {
-  layoutM := make(map[string]template.HTML)
-  filenames, _ := filepath.Glob(templatePath + "layout/*.tmpl")
+func loadLayout(data interface{}) *map[string]interface{} {
+  layoutM := make(map[string]interface{})
+  filenames, _ := filepath.Glob(tmplPath + "layout/*.tmpl")
   for _, filename := range filenames {
     baseName := filepath.Base(filename)
     if "layout.tmpl" != baseName {

@@ -10,9 +10,11 @@ type Config struct {
   Glob struct {
     Port string
     ServerUrl string
+    MongoUrl string
   }
-  Template struct {
-    Path string
+  Path struct {
+    Tmpl string
+    Static string
   }
 }
 
