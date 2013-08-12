@@ -2,11 +2,12 @@ package framework
 
 import "os"
 
-// Current runing mode.
-func GetMode() string {
+// GetMode get current runing mode.
+func GetMode() (mode string) {
   if len(os.Args) < 2 {
-    return "dev"
+    mode = "dev"
   } else {
-    return os.Args[1]
+    mode = os.Args[1]
   }
+  return
 }

@@ -5,27 +5,30 @@ import (
   "fmt"
 )
 
-/** config struct, reference to cfg/*.cfg files */
+// Config struct of cfg/*.cfg.
 type Config struct {
   Glob struct {
     Port string
-    ServerUrl string
-    MongoUrl string
+    ServerURL string
+    MongoURL string
   }
   Path struct {
     Tmpl string
     Static string
   }
+  Pagination struct {
+    PageSize int
+    ShowPage int
+  }
 }
 
-/**
- * loading cfg, only once
- */
+// Datacfg load config once.
 func Datacfg() *Config {
   cfgOnce.Do(LoadConfig)
   return &cfg
 }
 
+// LoadConfig implemention of loading configuration.
 func LoadConfig() {
   path := "cfg/" + GetMode() + ".cfg"
   err := gcfg.ReadFileInto(&cfg, path)

@@ -8,15 +8,12 @@ import (
   "strings"
 )
 
-type Route struct {
-  GlobServerUrl string
-  D interface{}
-}
-
+// IRoute url register must implement.
 type IRoute interface {
   R(m *map[string]func(http.ResponseWriter, *http.Request))
 }
 
+// Register register url and implemention.
 func Register(rfunc func(*map[string]func(http.ResponseWriter, *http.Request))) {
   regMap := make(map[string]func(http.ResponseWriter, *http.Request))
   rfunc(&regMap)
@@ -26,29 +23,49 @@ func Register(rfunc func(*map[string]func(http.ResponseWriter, *http.Request))) 
   http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir(staticPath))))
 }
 
-// Render template
+// RenderTemplate render html page.
 func RenderTemplate(w http.ResponseWriter, tmpl string, d interface{}) {
-  data := Route{GlobServerUrl: GlobServerUrl, D: d}
-  var err error
-  layoutM := loadLayout(&data)
-  (*layoutM)["CONTENT"] = loadTmpl(tmpl, &data)
-  (*layoutM)["GlobServerUrl"] = GlobServerUrl
-  layout := template.Must(template.New("layout.tmpl").ParseFiles(tmplPath + "layout/layout.tmpl"))
-  err = layout.Execute(w, &layoutM)
+  RenderTemplateWithFuncMap(w, tmpl, d, nil)
+}
+
+// RenderTemplateWithFuncMap render html page.
+func RenderTemplateWithFuncMap(w http.ResponseWriter, tmpl string, d interface{}, m *map[string]interface{}) {
+  data := map[string]interface{}{"GlobServerURL": GlobServerURL, "D": d, "helper": GetHelperInstance()}
+  var layout *template.Template
+  var funcM template.FuncMap
+  if m != nil {
+    funcM = template.FuncMap(*m)
+  } else {
+    funcM = nil
+  }
+  layoutM := loadLayout(&data, &funcM)
+  (*layoutM)["CONTENT"] = loadTmpl(tmpl, &data, &funcM)
+  (*layoutM)["GlobServerURL"] = GlobServerURL
+  if funcM != nil {
+    layout = template.Must(
+      template.New("layout.tmpl").Funcs(funcM).ParseFiles(tmplPath + "layout/layout.tmpl"))
+  } else {
+    layout = template.Must(template.New("layout.tmpl").ParseFiles(tmplPath + "layout/layout.tmpl"))
+  }
+  err := layout.Execute(w, &layoutM)
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
   }
 }
 
 // load tmpl
-func loadTmpl(tmpl string, data interface{}) template.HTML {
+func loadTmpl(tmpl string, data interface{}, funcM *template.FuncMap) template.HTML {
   var b bytes.Buffer
-  template.Must(template.ParseFiles(tmplPath + tmpl)).Execute(&b, &data)
+  if funcM != nil {
+    template.Must(template.New(tmpl).Funcs(*funcM).ParseFiles(tmplPath + tmpl)).Execute(&b, &data)
+  } else {
+    template.Must(template.ParseFiles(tmplPath + tmpl)).Execute(&b, &data)
+  }
   return template.HTML(b.String())
 }
 
 // load layout, escape layout/layout.tmpl
-func loadLayout(data interface{}) *map[string]interface{} {
+func loadLayout(data interface{}, funcM *template.FuncMap) *map[string]interface{} {
   layoutM := make(map[string]interface{})
   filenames, _ := filepath.Glob(tmplPath + "layout/*.tmpl")
   for _, filename := range filenames {
@@ -57,7 +74,11 @@ func loadLayout(data interface{}) *map[string]interface{} {
       var b bytes.Buffer
       bytes := []byte(baseName)
       name := string(bytes[: len(bytes) - 5])
-      template.Must(template.ParseFiles(filename)).Execute(&b, &data)
+      if funcM != nil {
+        template.Must(template.ParseFiles(filename)).Funcs(*funcM).Execute(&b, &data)
+      } else {
+        template.Must(template.ParseFiles(filename)).Execute(&b, &data)
+      }
       layoutM[strings.ToUpper(name)] = template.HTML(b.String())
     }
   }
