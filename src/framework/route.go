@@ -53,6 +53,32 @@ func RenderTemplateWithFuncMap(w http.ResponseWriter, tmpl string, d interface{}
   }
 }
 
+// RenderWithoutLayout render without layout.
+func RenderWithoutLayout(w http.ResponseWriter, tmpl string, d interface{}) {
+  RenderWithoutLayoutWithFuncMap(w, tmpl, d, nil)
+}
+
+// RenderWithoutLayoutWithFuncMap render without layout.
+func RenderWithoutLayoutWithFuncMap(w http.ResponseWriter, tmpl string, d interface{}, m *map[string]interface{}) {
+  data := map[string]interface{}{"GlobServerURL": GlobServerURL, "D": d, "helper": GetHelperInstance()}
+  var funcM template.FuncMap
+  var temp *template.Template
+  if m != nil {
+    funcM = template.FuncMap(*m)
+  } else {
+    funcM = nil
+  }
+  if funcM != nil {
+    temp = template.Must(template.ParseFiles(tmplPath + tmpl)).Funcs(funcM)
+  } else {
+    temp = template.Must(template.ParseFiles(tmplPath + tmpl))
+  }
+  err := temp.Execute(w, &data)
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError)
+  }
+}
+
 // load tmpl
 func loadTmpl(tmpl string, data interface{}, funcM *template.FuncMap) template.HTML {
   var b bytes.Buffer
