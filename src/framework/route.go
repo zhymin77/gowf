@@ -41,6 +41,7 @@ func RenderTemplateWithFuncMap(w http.ResponseWriter, tmpl string, d interface{}
   layoutM := loadLayout(&data, &funcM)
   (*layoutM)["CONTENT"] = loadTmpl(tmpl, &data, &funcM)
   (*layoutM)["GlobServerURL"] = GlobServerURL
+  (*layoutM)["Content_Title"] = (*(d.(*map[string]interface{})))["content_title"]
   if funcM != nil {
     layout = template.Must(
       template.New("layout.tmpl").Funcs(funcM).ParseFiles(tmplPath + "layout/layout.tmpl"))

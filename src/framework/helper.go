@@ -1,5 +1,9 @@
 package framework
 
+import (
+  "strings"
+)
+
 // Helper template operation helper.
 type Helper string
 
@@ -76,4 +80,14 @@ func (h *Helper)Lte(a, b int) bool {
 // NonEmpty check no empty.
 func (h *Helper)NonEmpty(s string) bool {
   return len(s) > 0
+}
+
+// Contains string contains.
+func (h *Helper)Contains(s, substr string) bool {
+  return strings.Contains(s, substr)
+}
+
+// StrEq string equal.
+func (h *Helper)StrEq(s, substr string) bool {
+  return strings.EqualFold(s, substr)
 }

@@ -16,10 +16,6 @@ type Config struct {
     Tmpl string
     Static string
   }
-  Pagination struct {
-    PageSize int
-    ShowPage int
-  }
 }
 
 // Datacfg load config once.
