@@ -2,6 +2,26 @@ gowf
 ====
 golang web framework open source
 
+
+
+
+Run: go run src/server.go
+
+PLEASE ignore below words.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ===============================中文============================
 
 先更新下配置go文件:
