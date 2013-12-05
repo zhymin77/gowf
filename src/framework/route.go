@@ -70,7 +70,7 @@ func RenderWithoutLayoutWithFuncMap(w http.ResponseWriter, tmpl string, d interf
     funcM = nil
   }
   if funcM != nil {
-    temp = template.Must(template.ParseFiles(tmplPath + tmpl)).Funcs(funcM)
+    temp = template.Must(template.New(tmpl).Funcs(funcM).ParseFiles(tmplPath + tmpl))
   } else {
     temp = template.Must(template.ParseFiles(tmplPath + tmpl))
   }
